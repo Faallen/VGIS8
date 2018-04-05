@@ -237,8 +237,8 @@ def detect_people(video):
                                         int(prediction[1])])
                         predictions_list[idx_dist][0] = True
                         predictions_list[idx_dist][1] = 0
-                        predictions_data[idx_dist].append([int(prediction[0]),
-                                        int(prediction[1]), person[2][2], person[2][3]])
+                        predictions_data[idx_dist].append([int(prediction[0]-person[2][2]/2),
+                                        int(prediction[1]-person[2][3]),person[2][2],person[2][3]])
                         added = True
                         break
                 
@@ -257,7 +257,8 @@ def detect_people(video):
                 prediction = kalman.predict()
                 predictions_list[pred].append([int(prediction[0]),int(prediction[1])])
                 predictions_list[pred][1] += 1
-                predictions_data[pred].append([int(prediction[0]),int(prediction[1]),
+                predictions_data[pred].append([int(prediction[0]-predictions_data[pred][-1][2]/2),
+                                int(prediction[1]-predictions_data[pred][-1][3]),
                                 predictions_data[pred][-1][2],predictions_data[pred][-1][3]])
        
         

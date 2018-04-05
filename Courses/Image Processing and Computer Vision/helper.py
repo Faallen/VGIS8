@@ -150,7 +150,8 @@ def paint(court, predictions_list):
 '''
 Create new Kalman filter
 '''
-def new_kalman_filter(kalman_filters_list, predictions_list, loc_x, loc_y):
+def new_kalman_filter(kalman_filters_list, predictions_list, loc_x, loc_y, 
+                      predictions_data, person):
     # KalmanFilter(number_of_dynamic_parameters, number_of_measurement_parameters)
     # dynamic parameters: x-position, y-position, x-velocity and y-velocity
     # measurements: x- and y-positions for each frame
@@ -179,6 +180,7 @@ def new_kalman_filter(kalman_filters_list, predictions_list, loc_x, loc_y):
     # other are not added to the same list. Number in second position indicates 
     # the number of frames the kalman filter has not detected new measurements.
     predictions_list.append([[True], 0, [loc_x, loc_y]])
-    
+    predictions_data.append([[int(loc_x-person[2][2]/2), int(loc_y-person[2][3]), 
+                              person[2][2], person[2][3]]])
     
     
