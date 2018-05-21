@@ -10,14 +10,14 @@ import numpy as np
 import helper
 #from scipy.spatial import distance
 
-#video = 'Caviar\Fainting\Rest_FallOnFloor.mp4'
-#video = 'Caviar\Fighting\Fight_OneManDown.mp4'
-#video = 'Caviar\Fighting\Fight_RunAway1.mp4'
-#video = 'Caviar\Left_bags\LeftBag.mp4'
-##video = 'Caviar\Left_bags\LeftBag_PickedUp.mp4'
-video = 'Caviar\Left_bags\LeftBox.mp4'
-#video = 'Caviar\Tracking\Meet_WalkSplit.mp4'
-#video = 'Caviar\Tracking\Meet_WalkTogether2.mp4'
+#video = 'Caviar\Fainting\Rest_FallOnFloor.mpg'
+#video = 'Caviar\Fighting\Fight_OneManDown.mpg'
+#video = 'Caviar\Fighting\Fight_RunAway1.mpg'
+#video = 'Caviar\Left_bags\LeftBag.mpg'
+#video = 'Caviar\Left_bags\LeftBag_PickedUp.mpg'
+#video = 'Caviar\Left_bags\LeftBox.mpg'
+#video = 'Caviar\Tracking\Meet_WalkSplit.mpg'
+video = 'Caviar\Tracking\Meet_WalkTogether2.mpg'
 #video = 'Videos\EnterExitCrossingPaths2cor.mp4'
 #video = 'Videos\EnterExitCrossingPaths1cor.mp4'
 #video = 'Videos\OneLeaveShop1cor.mp4'
@@ -35,6 +35,8 @@ backgroundImg = helper.getBackground(video)
 nr_frame = 0
 predictions_list = []
 kalman_filters_list = []
+
+file = open('testfile7.txt', 'w')
 
 while cap.isOpened():
     
@@ -90,7 +92,7 @@ while cap.isOpened():
     if not nr_frame % int(fps/2):
         helper.extract_features(predictions_list, fps)
         
-    
+
     # categorize blobs
     for detection in predictions_list:
         
@@ -101,9 +103,13 @@ while cap.isOpened():
             y = detection[2][-1][1]
             vel = detection[4]
             category = detection[6]
-            
+
+            to_write = (x, y, vel)
+
+            file.write(str(to_write)+'\n')
+
             cv2.putText(frame, category+" vel-"+str(vel), 
-                        (x,y-10), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1)
+                        (x, y-10), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1)
             
             if category == "Unknown" and vel < vel_thresh:
                 detection[6] = "Object"
@@ -121,7 +127,7 @@ while cap.isOpened():
     
     # find abandoned luggage and flag people
     helper.detect_abandoned_objects(predictions_list, fps, frame)
-                    
+
         
     for p in predictions_list:
         if p[1] == 0:
@@ -138,7 +144,7 @@ while cap.isOpened():
     display = np.hstack((frm, frame))
     cv2.imshow("Frame", display)
     
-    
+file.close()
 cap.release()
 cv2.destroyAllWindows()
 
