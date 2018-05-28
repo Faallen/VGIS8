@@ -8,7 +8,10 @@ Rita and Atanas
 import cv2
 import numpy as np
 import helper
+import cluster
 #from scipy.spatial import distance
+
+
 
 #video = 'Caviar\Fainting\Rest_FallOnFloor.mpg'
 #video = 'Caviar\Fighting\Fight_OneManDown.mpg'
@@ -17,7 +20,8 @@ import helper
 #video = 'Caviar\Left_bags\LeftBag_PickedUp.mpg'
 #video = 'Caviar\Left_bags\LeftBox.mpg'
 #video = 'Caviar\Tracking\Meet_WalkSplit.mpg'
-video = 'Caviar\Tracking\Meet_WalkTogether2.mpg'
+video = 'Caviar\Walking\Walk3.mpg'
+#video = 'Caviar\Tracking\Meet_WalkTogether2.mpg'
 #video = 'Videos\EnterExitCrossingPaths2cor.mp4'
 #video = 'Videos\EnterExitCrossingPaths1cor.mp4'
 #video = 'Videos\OneLeaveShop1cor.mp4'
@@ -36,7 +40,13 @@ nr_frame = 0
 predictions_list = []
 kalman_filters_list = []
 
-file = open('testfile7.txt', 'w')
+#file = open('testfile7.txt', 'w')
+data = cluster.data
+scaler = cluster.scaler
+clf = cluster.clf
+labels = cluster.labels_binary
+print(data[0])
+print(labels[0])
 
 while cap.isOpened():
     
@@ -105,8 +115,14 @@ while cap.isOpened():
             category = detection[6]
 
             to_write = (x, y, vel)
+            sample = np.array([x, y])
+            sample = sample.reshape(1, -1)
+            sample = scaler.transform(sample)
 
-            file.write(str(to_write)+'\n')
+            if clf.predict(sample) == 1:
+                cv2.circle(frame, (x, y), 12, [0, 255, 255], 2)
+                print('Suspicious at frame %d' % nr_frame)
+            #file.write(str(to_write)+'\n')
 
             cv2.putText(frame, category+" vel-"+str(vel), 
                         (x, y-10), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1)
@@ -144,7 +160,7 @@ while cap.isOpened():
     display = np.hstack((frm, frame))
     cv2.imshow("Frame", display)
     
-file.close()
+#file.close()
 cap.release()
 cv2.destroyAllWindows()
 
