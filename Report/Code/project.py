@@ -11,9 +11,10 @@ import numpy as np
 import helper
 
 # Videos
-video = 'Caviar\Fainting\Rest_FallOnFloor.mp4'
-#video = 'Caviar\Fighting\Fight_OneManDown.mp4'
-#video = 'Caviar\Fighting\Fight_RunAway1.mp4'
+#video = 'Caviar\Fainting\Rest_FallOnFloor.mpg'
+video = 'Caviar\Fighting\Fight_OneManDown.mpg'
+#video = 'Caviar\Fighting\Fight_RunAway1.mpg'
+#video = 'Caviar\Walking\Walk2.mpg'
 #video = 'Caviar\Left_bags\LeftBag.mp4'
 ##video = 'Caviar\Left_bags\LeftBag_PickedUp.mp4'
 #video = 'Caviar\Left_bags\LeftBox.mp4'
@@ -36,7 +37,8 @@ predictions_list = []
 kalman_filters_list = []
 heights_list = [1]
 blob_id = [0]
-
+vel_data = dict()
+pause = False
 while cap.isOpened():
     
     nr_frame += 1
@@ -117,7 +119,21 @@ while cap.isOpened():
             y = detection[2][-1][1]
             vel = detection[4]
             category = detection[6]
-            
+            if detection[10] in vel_data:
+                if len(vel_data[detection[10]]) > 5:
+                    vel_data[detection[10]].pop(0)
+                else:
+                    vel_data[detection[10]].append([nr_frame, vel])
+            else:
+                vel_data[detection[10]] = [[nr_frame, vel]]
+
+            if len(vel_data[detection[10]]) > 5:
+                if helper.detect_running(vel_data[detection[10]], 23, 3):
+                    print('Suspicious Running')
+                    pause = True
+                    cv2.circle(frame, (x, y), 12, (0,255,255), 2)
+                    cv2.circle(frame_tracks, (x, y), 12, (0,255,255), 2)
+
             cv2.putText(frame, "-"+category+" vel-"+str(vel), 
                         (x+15,y-5), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1)
             
@@ -187,7 +203,10 @@ while cap.isOpened():
     
 
     display = np.hstack((frame_tracks,frame))
-    cv2.imshow("Frame", display)        
+    cv2.imshow("Frame", display)
+    if pause:
+        cv2.waitKey(0)
+        pause=False
     
     
 cap.release()

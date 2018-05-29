@@ -703,4 +703,28 @@ def detect_loitering(predictions_list, fps):
             detection[14] = "Loitering"
 
 
+'''
+Detect abnormal running
+input: velocity data over 5 frames, min running velocity
+'''
+def detect_running(vel_data, t_vel_running, t_acc_running):
+    average_vel = 0
+    average_acc = 0
+    for i in vel_data:
+        average_vel += i[1]
 
+    for i in range(4):
+
+        average_acc += vel_data[i+1][ 1]-vel_data[i][ 1]
+
+    average_vel = average_vel/5
+    average_acc = average_acc/4
+    print(str((average_acc, average_vel)))
+    if average_vel > t_vel_running:
+        if average_acc > t_acc_running:
+
+            return True
+        else:
+            return False
+    else:
+        return False
